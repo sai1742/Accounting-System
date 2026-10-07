@@ -1,0 +1,149 @@
+/* ==========================================================================
+   ApexLedger - Base CSS & Typography Reset
+   ========================================================================== */
+
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap');
+
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  font-size: 16px;
+  scroll-behavior: smooth;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  font-family: var(--font-sans);
+  background-color: var(--bg-app);
+  color: var(--text-primary);
+  line-height: 1.5;
+  min-height: 100vh;
+  overflow-x: hidden;
+  transition: background-color var(--transition-normal), color var(--transition-normal);
+}
+
+/* Typography Defaults */
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-heading);
+  color: var(--text-primary);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1.25;
+}
+
+h1 { font-size: 2rem; }
+h2 { font-size: 1.5rem; }
+h3 { font-size: 1.25rem; }
+h4 { font-size: 1.1rem; }
+
+p {
+  color: var(--text-secondary);
+  font-size: 0.925rem;
+}
+
+a {
+  color: var(--primary-500);
+  text-decoration: none;
+  transition: color var(--transition-fast);
+}
+
+a:hover {
+  color: var(--primary-600);
+}
+
+button, input, select, textarea {
+  font-family: inherit;
+  font-size: 0.925rem;
+}
+
+/* Scrollbar Customization */
+::-webkit-scrollbar {
+  width: 7px;
+  height: 7px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--border-strong);
+  border-radius: var(--radius-full);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--text-tertiary);
+}
+
+/* Utility Animations */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slideDown {
+  from { opacity: 0; transform: translateY(-12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes pulseGlow {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(99, 102, 241, 0.4); }
+  50% { box-shadow: 0 0 0 8px rgba(99, 102, 241, 0); }
+}
+
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+.animate-fade-in {
+  animation: fadeIn var(--transition-normal) ease-out forwards;
+}
+
+/* Financial Accent Utility Classes */
+.text-profit { color: var(--profit-500) !important; }
+.text-expense { color: var(--expense-500) !important; }
+.text-warning { color: var(--warning-500) !important; }
+.text-info { color: var(--info-500) !important; }
+.text-primary { color: var(--primary-500) !important; }
+.text-muted { color: var(--text-tertiary) !important; }
+
+.bg-profit-subtle { background: var(--profit-50) !important; color: var(--profit-700) !important; }
+.bg-expense-subtle { background: var(--expense-50) !important; color: var(--expense-700) !important; }
+.bg-warning-subtle { background: var(--warning-50) !important; color: var(--warning-700) !important; }
+.bg-info-subtle { background: var(--info-50) !important; color: var(--info-700) !important; }
+.bg-primary-subtle { background: var(--primary-50) !important; color: var(--primary-700) !important; }
+
+[data-theme="dark"] .bg-profit-subtle { background: rgba(16, 185, 129, 0.15) !important; color: #34D399 !important; }
+[data-theme="dark"] .bg-expense-subtle { background: rgba(244, 63, 94, 0.15) !important; color: #FB7185 !important; }
+[data-theme="dark"] .bg-warning-subtle { background: rgba(245, 158, 11, 0.15) !important; color: #FBBF24 !important; }
+[data-theme="dark"] .bg-info-subtle { background: rgba(59, 130, 246, 0.15) !important; color: #60A5FA !important; }
+[data-theme="dark"] .bg-primary-subtle { background: rgba(99, 102, 241, 0.15) !important; color: #A5B4FC !important; }
+
+.font-mono {
+  font-family: var(--font-mono);
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.25rem 0.65rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  border-radius: var(--radius-full);
+  text-transform: capitalize;
+  letter-spacing: 0.02em;
+}
+
+.badge-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background-color: currentColor;
+}

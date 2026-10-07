@@ -1,0 +1,605 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="ApexLedger Enterprise — A modern, secure corporate accounting and office financial management SaaS platform.">
+  <title>ApexLedger — Office Accounting & Financial Management System</title>
+
+  <!-- External Fonts & Iconography -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+  <!-- Core Chart.js Visualizations Library -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <!-- ApexLedger Design System Stylesheets -->
+  <link rel="stylesheet" href="css/variables.css">
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/dashboard.css">
+</head>
+<body>
+
+  <!-- Full-Screen Public Pages Container (Landing, Login, Admin Login, Register) -->
+  <div id="publicContainer" style="display: none;"></div>
+
+  <!-- Authenticated Application Shell -->
+  <div class="app-container" id="appShell">
+    
+    <!-- Collapsible Sidebar Navigation -->
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-header">
+        <a href="#dashboard" class="brand-link">
+          <div class="brand-icon"><i class="fas fa-coins"></i></div>
+          <div class="brand-info">
+            <div class="brand-name">Apex<span>Ledger</span></div>
+            <div class="brand-tag">Office Finance</div>
+          </div>
+        </a>
+        <button class="sidebar-collapse-btn" onclick="UI.toggleSidebar()" title="Toggle Sidebar">
+          <i class="fas fa-bars"></i>
+        </button>
+      </div>
+
+      <nav class="sidebar-nav">
+        <div class="nav-section-title">Core Management</div>
+        <a href="#dashboard" class="nav-link active" data-view="dashboard">
+          <i class="fas fa-chart-pie"></i>
+          <span class="nav-text">Dashboard</span>
+        </a>
+        <a href="#transactions" class="nav-link" data-view="transactions">
+          <i class="fas fa-receipt"></i>
+          <span class="nav-text">Transactions</span>
+        </a>
+        <a href="#income" class="nav-link" data-view="income">
+          <i class="fas fa-arrow-down-left text-profit"></i>
+          <span class="nav-text">Income</span>
+        </a>
+        <a href="#expenses" class="nav-link" data-view="expenses">
+          <i class="fas fa-arrow-up-right text-expense"></i>
+          <span class="nav-text">Expenses</span>
+        </a>
+        <a href="#invoices" class="nav-link" data-view="invoices">
+          <i class="fas fa-file-invoice-dollar"></i>
+          <span class="nav-text">Invoices</span>
+        </a>
+        <a href="#reports" class="nav-link" data-view="reports">
+          <i class="fas fa-chart-line"></i>
+          <span class="nav-text">Financial Reports</span>
+        </a>
+
+        <div class="nav-section-title admin-only">Administration</div>
+        <a href="#users" class="nav-link admin-only" data-view="users">
+          <i class="fas fa-users-gear"></i>
+          <span class="nav-text">User Accounts</span>
+        </a>
+        <a href="#audit" class="nav-link admin-only" data-view="audit">
+          <i class="fas fa-shield-cat"></i>
+          <span class="nav-text">Audit Logs</span>
+        </a>
+
+        <div class="nav-section-title">System & Preferences</div>
+        <a href="#notifications" class="nav-link" data-view="notifications">
+          <i class="fas fa-bell"></i>
+          <span class="nav-text">Notifications</span>
+        </a>
+        <a href="#settings" class="nav-link" data-view="settings">
+          <i class="fas fa-gear"></i>
+          <span class="nav-text">Settings</span>
+        </a>
+        <a href="#landing" class="nav-link" data-view="landing">
+          <i class="fas fa-globe"></i>
+          <span class="nav-text">Public Landing</span>
+        </a>
+      </nav>
+
+      <div class="sidebar-footer">
+        <div class="sidebar-user-pill">
+          <div class="avatar" id="sidebarUserAvatar" style="width: 32px; height: 32px; font-size: 0.75rem;">RS</div>
+          <div class="sidebar-user-info">
+            <div id="sidebarUserName" style="font-weight: 700; font-size: 0.825rem; color: #FFFFFF; line-height: 1.2;">Rajesh Sharma</div>
+            <div id="sidebarUserRole" style="font-size: 0.7rem; color: #94A3B8;">Super Admin</div>
+          </div>
+          <a href="#login" onclick="Auth.logout()" title="Logout" style="margin-left: auto; color: #94A3B8; font-size: 0.9rem;">
+            <i class="fas fa-power-off"></i>
+          </a>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Main Content Area & Sticky Topbar -->
+    <div class="main-wrapper">
+      
+      <!-- Topbar Header -->
+      <header class="topbar">
+        <div class="topbar-left">
+          <button class="btn-icon" onclick="UI.toggleSidebar()" style="display: none;" id="mobileMenuBtn">
+            <i class="fas fa-bars"></i>
+          </button>
+          <div class="search-trigger" onclick="UI.openGlobalSearch()">
+            <i class="fas fa-search"></i>
+            <span>Search transactions, invoices, accounts...</span>
+            <kbd>Ctrl K</kbd>
+          </div>
+        </div>
+
+        <div class="topbar-right">
+          <!-- Active Role Indicator -->
+          <div class="role-pill" onclick="App.quickRoleSwitchPrompt()" style="cursor: pointer;" title="Click to Switch Demo Role">
+            <i class="fas fa-user-shield"></i>
+            <span id="topbarUserRole">Super Admin</span>
+          </div>
+
+          <!-- Theme Toggle Button -->
+          <button class="btn-icon" id="themeToggleBtn" onclick="UI.toggleTheme()" title="Toggle Dark / Light Mode">
+            <i class="fas fa-sun"></i>
+          </button>
+
+          <!-- Notifications Dropdown -->
+          <div class="dropdown" style="position: relative;">
+            <button class="btn-icon" onclick="UI.toggleDropdown('notifDropdown')" title="Notifications">
+              <i class="fas fa-bell"></i>
+              <span id="notifBadge" class="nav-badge" style="position: absolute; top: -3px; right: -3px; background: var(--expense-500); color: white; display: none; padding: 2px 6px; font-size: 0.65rem;">3</span>
+            </button>
+            <div class="dropdown-menu" id="notifDropdown" style="width: 320px;">
+              <div style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-subtle); display: flex; justify-content: space-between; align-items: center;">
+                <strong style="font-size: 0.85rem;">Notifications</strong>
+                <a href="javascript:void(0)" onclick="App.markAllReadAction()" style="font-size: 0.75rem;">Mark all read</a>
+              </div>
+              <div id="notifDropdownList"></div>
+              <div style="padding: 0.5rem; text-align: center; border-top: 1px solid var(--border-subtle);">
+                <a href="#notifications" onclick="UI.closeAllDropdowns()" style="font-size: 0.8rem; font-weight: 600;">View Notification Center</a>
+              </div>
+            </div>
+          </div>
+
+          <!-- User Profile Dropdown -->
+          <div class="dropdown" style="position: relative;">
+            <button class="topbar-avatar-btn" onclick="UI.toggleDropdown('userDropdown')">
+              <div class="avatar" id="topbarUserAvatar">RS</div>
+              <div style="text-align: left; display: none;" class="desktop-user-name">
+                <div id="topbarUserName" style="font-size: 0.85rem; font-weight: 700; color: var(--text-primary); line-height: 1.1;">Rajesh Sharma</div>
+              </div>
+              <i class="fas fa-chevron-down" style="font-size: 0.7rem; color: var(--text-tertiary);"></i>
+            </button>
+            <div class="dropdown-menu" id="userDropdown">
+              <div style="padding: 0.75rem 1rem; border-bottom: 1px solid var(--border-subtle);">
+                <div style="font-weight: 700; font-size: 0.875rem;" id="dropdownUserName">Rajesh Sharma</div>
+                <div style="font-size: 0.75rem; color: var(--text-tertiary);" id="dropdownUserEmail">admin@apexledger.com</div>
+              </div>
+              <a href="#settings" class="dropdown-item" onclick="UI.closeAllDropdowns()"><i class="fas fa-user-circle"></i> Profile & Security</a>
+              <a href="#reports" class="dropdown-item" onclick="UI.closeAllDropdowns()"><i class="fas fa-chart-column"></i> Financial Statements</a>
+              <a href="javascript:void(0)" class="dropdown-item" onclick="App.quickRoleSwitchPrompt(); UI.closeAllDropdowns();"><i class="fas fa-users-cog"></i> Switch Role (Demo)</a>
+              <div class="dropdown-divider"></div>
+              <a href="#login" class="dropdown-item danger" onclick="Auth.logout(); UI.closeAllDropdowns();"><i class="fas fa-arrow-right-from-bracket"></i> Sign Out</a>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <!-- Dynamic Content Injection Target -->
+      <main class="content-area" id="contentArea">
+        <!-- Rendered by App.js router -->
+      </main>
+
+      <!-- App Footer -->
+      <footer class="app-footer">
+        <div>
+          <strong>ApexLedger Enterprise</strong> &mdash; Simple. Secure. Smarter Financial Management.
+        </div>
+        <div>
+          <a href="javascript:void(0)" onclick="alert('ApexLedger Privacy Policy: All client accounting data encrypted.')">Privacy Policy</a>
+          <a href="javascript:void(0)" onclick="alert('ApexLedger Terms: Licensed enterprise SaaS deployment.')">Terms</a>
+          <a href="javascript:void(0)" onclick="alert('For assistance, contact accounts@apexledger.com')">Help & Support</a>
+          <span style="margin-left: 1.25rem;">v2.4.0-Enterprise</span>
+        </div>
+      </footer>
+    </div>
+  </div>
+
+  <!-- ========================================================================
+       MODAL DIALOGS
+       ======================================================================== -->
+
+  <!-- 1. Add Income Modal -->
+  <div class="modal-overlay" id="addIncomeModal">
+    <div class="modal-container">
+      <div class="modal-header">
+        <div class="modal-title"><i class="fas fa-plus-circle text-profit"></i> Record New Office Income</div>
+        <button class="modal-close" onclick="UI.closeModal('addIncomeModal')">&times;</button>
+      </div>
+      <form id="addIncomeForm">
+        <div class="modal-body">
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+            <div class="form-group">
+              <label class="form-label">Receipt Date <span class="required">*</span></label>
+              <input type="date" id="incDate" class="form-input" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Income Category <span class="required">*</span></label>
+              <select id="incCategory" class="form-select" required>
+                <option value="Client Retainer">Client Retainer</option>
+                <option value="Software Consulting">Software Consulting</option>
+                <option value="Web Development">Web Development</option>
+                <option value="Product License">Product License</option>
+                <option value="Maintenance Contract">Maintenance Contract</option>
+                <option value="Other">Other</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Client Source / Description <span class="required">*</span></label>
+            <input type="text" id="incSource" class="form-input" placeholder="e.g. Infosys Global - Q3 Retainer" required>
+          </div>
+
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+            <div class="form-group">
+              <label class="form-label">Amount (₹) <span class="required">*</span></label>
+              <input type="number" id="incAmount" class="form-input" placeholder="50000" min="1" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Payment Method <span class="required">*</span></label>
+              <select id="incPaymentMethod" class="form-select" required>
+                <option value="Bank Transfer">Bank Transfer (NEFT/RTGS)</option>
+                <option value="UPI">UPI Payment</option>
+                <option value="Card">Corporate Credit Card</option>
+                <option value="Cheque">Bank Cheque</option>
+                <option value="Cash">Cash</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Bank Reference / Transaction UTR</label>
+            <input type="text" id="incReference" class="form-input" placeholder="e.g. HDFC-N987211">
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Additional Notes</label>
+            <textarea id="incNotes" class="form-textarea" rows="2" placeholder="Optional invoice reference or payment notes..."></textarea>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" onclick="UI.closeModal('addIncomeModal')">Cancel</button>
+          <button type="submit" class="btn btn-primary"><i class="fas fa-check"></i> Save Income</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- 2. Add Expense Modal -->
+  <div class="modal-overlay" id="addExpenseModal">
+    <div class="modal-container">
+      <div class="modal-header">
+        <div class="modal-title"><i class="fas fa-minus-circle text-expense"></i> Add Office Expense</div>
+        <button class="modal-close" onclick="UI.closeModal('addExpenseModal')">&times;</button>
+      </div>
+      <form id="addExpenseForm">
+        <div class="modal-body">
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+            <div class="form-group">
+              <label class="form-label">Disbursement Date <span class="required">*</span></label>
+              <input type="date" id="expDate" class="form-input" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Expense Category <span class="required">*</span></label>
+              <select id="expCategory" class="form-select" required>
+                <option value="Rent">Rent</option>
+                <option value="Salary">Salary & Payroll</option>
+                <option value="Electricity">Electricity</option>
+                <option value="Internet">Internet & Telecom</option>
+                <option value="Office Supplies">Office Supplies</option>
+                <option value="Travel">Travel & Lodging</option>
+                <option value="Maintenance">Maintenance & Repairs</option>
+                <option value="Equipment">Hardware & Equipment</option>
+                <option value="Marketing">Marketing & Advertising</option>
+                <option value="Other">Other Miscellaneous</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Vendor / Description <span class="required">*</span></label>
+            <input type="text" id="expDesc" class="form-input" placeholder="e.g. DLF CyberCity Commercial Lease" required>
+          </div>
+
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+            <div class="form-group">
+              <label class="form-label">Expense Amount (₹) <span class="required">*</span></label>
+              <input type="number" id="expAmount" class="form-input" placeholder="15000" min="1" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Payment Method <span class="required">*</span></label>
+              <select id="expPaymentMethod" class="form-select" required>
+                <option value="Bank Transfer">Bank Transfer (NEFT)</option>
+                <option value="UPI">UPI</option>
+                <option value="Card">Corporate Card</option>
+                <option value="Cheque">Cheque</option>
+                <option value="Cash">Petty Cash</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Vendor Invoice / Reference Number</label>
+            <input type="text" id="expInvoiceNo" class="form-input" placeholder="e.g. INV-VENDOR-891">
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Notes & Purpose</label>
+            <textarea id="expNotes" class="form-textarea" rows="2" placeholder="Department approval or bill description..."></textarea>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" onclick="UI.closeModal('addExpenseModal')">Cancel</button>
+          <button type="submit" class="btn btn-danger"><i class="fas fa-check"></i> Record Expense</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- 3. Create Invoice Modal -->
+  <div class="modal-overlay" id="createInvoiceModal">
+    <div class="modal-container" style="max-width: 720px;">
+      <div class="modal-header">
+        <div class="modal-title"><i class="fas fa-file-invoice-dollar text-primary"></i> Create Client Invoice</div>
+        <button class="modal-close" onclick="UI.closeModal('createInvoiceModal')">&times;</button>
+      </div>
+      <form id="createInvoiceForm">
+        <div class="modal-body">
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+            <div class="form-group">
+              <label class="form-label">Client Company Name <span class="required">*</span></label>
+              <input type="text" id="invClientName" class="form-input" placeholder="Tata Consultancy Services" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Client Billing Email <span class="required">*</span></label>
+              <input type="email" id="invClientEmail" class="form-input" placeholder="billing@tcs.corp" required>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Client Address & Location</label>
+            <input type="text" id="invClientAddress" class="form-input" placeholder="Whitefield, Bengaluru - 560066">
+          </div>
+
+          <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem;">
+            <div class="form-group">
+              <label class="form-label">Payment Due Date <span class="required">*</span></label>
+              <input type="date" id="invDueDate" class="form-input" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label">GST / Tax Rate (%)</label>
+              <input type="number" id="invTaxRate" class="form-input" value="18" oninput="App.calculateInvoiceModalTotals()">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Discount (%)</label>
+              <input type="number" id="invDiscountRate" class="form-input" value="0" oninput="App.calculateInvoiceModalTotals()">
+            </div>
+          </div>
+
+          <!-- Itemized Line Rows -->
+          <div style="margin: 1rem 0;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+              <label class="form-label" style="margin: 0;">Itemized Line Items</label>
+              <button type="button" class="btn btn-outline btn-sm" onclick="App.addInvoiceItemRow()">
+                <i class="fas fa-plus"></i> Add Line Item
+              </button>
+            </div>
+            <table style="width: 100%; border-collapse: collapse;">
+              <thead>
+                <tr style="font-size: 0.75rem; text-transform: uppercase; color: var(--text-tertiary);">
+                  <th style="text-align: left; padding: 0.4rem 0;">Description</th>
+                  <th style="width: 80px; text-align: left; padding: 0.4rem 0.5rem;">Qty</th>
+                  <th style="width: 120px; text-align: left; padding: 0.4rem 0.5rem;">Unit (₹)</th>
+                  <th style="width: 40px;"></th>
+                </tr>
+              </thead>
+              <tbody id="invoiceItemsBody">
+                <tr>
+                  <td><input type="text" class="form-input item-desc" placeholder="e.g. Enterprise Cloud ERP Setup" value="Enterprise Software Engineering" required></td>
+                  <td><input type="number" class="form-input item-qty" value="1" min="1" style="width: 70px;" oninput="App.calculateInvoiceModalTotals()" required></td>
+                  <td><input type="number" class="form-input item-price" value="75000" style="width: 110px;" oninput="App.calculateInvoiceModalTotals()" required></td>
+                  <td style="text-align: right;"><button type="button" class="btn btn-danger btn-sm" onclick="this.closest('tr').remove(); App.calculateInvoiceModalTotals();">&times;</button></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Real-Time Total Preview -->
+          <div style="background: var(--bg-surface-subtle); padding: 1rem; border-radius: var(--radius-md); margin-top: 1rem;">
+            <div style="display: flex; justify-content: space-between; font-size: 0.85rem; margin-bottom: 0.35rem;">
+              <span>Subtotal:</span>
+              <strong id="invModalSubtotal">₹ 75,000</strong>
+            </div>
+            <div style="display: flex; justify-content: space-between; font-size: 0.85rem; margin-bottom: 0.35rem;">
+              <span>GST / Tax:</span>
+              <strong id="invModalTax">+ ₹ 13,500</strong>
+            </div>
+            <div style="display: flex; justify-content: space-between; font-size: 1.1rem; font-weight: 800; color: var(--primary-600); border-top: 1px solid var(--border-subtle); padding-top: 0.5rem;">
+              <span>Grand Total:</span>
+              <span id="invModalGrandTotal">₹ 88,500</span>
+            </div>
+          </div>
+
+          <div class="form-group" style="margin-top: 1rem;">
+            <label class="form-label">Payment Terms & Notes</label>
+            <textarea id="invNotes" class="form-textarea" rows="2">Payment terms: Net 15 days via wire transfer to official corporate account.</textarea>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" onclick="UI.closeModal('createInvoiceModal')">Cancel</button>
+          <button type="submit" class="btn btn-primary"><i class="fas fa-check"></i> Generate Invoice</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- 4. Invoice View / Print Modal -->
+  <div class="modal-overlay" id="invoiceViewModal">
+    <div class="modal-container" style="max-width: 860px; background: transparent; box-shadow: none; border: none;">
+      <div style="display: flex; justify-content: flex-end; gap: 0.75rem; margin-bottom: 1rem;">
+        <button class="btn btn-primary btn-sm" onclick="window.print()">
+          <i class="fas fa-print"></i> Print / Save PDF
+        </button>
+        <button class="btn btn-secondary btn-sm" onclick="UI.closeModal('invoiceViewModal')">
+          <i class="fas fa-xmark"></i> Close
+        </button>
+      </div>
+      <div id="invoiceViewModalBody"></div>
+    </div>
+  </div>
+
+  <!-- 5. Add User Modal -->
+  <div class="modal-overlay" id="addUserModal">
+    <div class="modal-container">
+      <div class="modal-header">
+        <div class="modal-title"><i class="fas fa-user-plus text-primary"></i> Add Staff Account</div>
+        <button class="modal-close" onclick="UI.closeModal('addUserModal')">&times;</button>
+      </div>
+      <form id="addUserForm">
+        <div class="modal-body">
+          <div class="form-group">
+            <label class="form-label">Full Name <span class="required">*</span></label>
+            <input type="text" id="addUserName" class="form-input" placeholder="e.g. Ramesh Kulkarni" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Corporate Email <span class="required">*</span></label>
+            <input type="email" id="addUserEmail" class="form-input" placeholder="ramesh@apexledger.com" required>
+          </div>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+            <div class="form-group">
+              <label class="form-label">Role Designation <span class="required">*</span></label>
+              <select id="addUserRole" class="form-select" required>
+                <option value="Accountant">Accountant</option>
+                <option value="Staff">Staff Member</option>
+                <option value="Admin">Administrator</option>
+                <option value="Viewer">Viewer</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Mobile Number</label>
+              <input type="text" id="addUserPhone" class="form-input" placeholder="+91 98111 22334">
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" onclick="UI.closeModal('addUserModal')">Cancel</button>
+          <button type="submit" class="btn btn-primary"><i class="fas fa-check"></i> Create User</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- 6. Official Payment Voucher Modal -->
+  <div class="modal-overlay" id="paymentVoucherModal">
+    <div class="modal-container" style="max-width: 760px; background: transparent; box-shadow: none; border: none;">
+      <div style="display: flex; justify-content: flex-end; gap: 0.75rem; margin-bottom: 1rem;">
+        <button class="btn btn-primary btn-sm" onclick="window.print()">
+          <i class="fas fa-print"></i> Print Voucher Slip
+        </button>
+        <button class="btn btn-secondary btn-sm" onclick="UI.closeModal('paymentVoucherModal')">
+          <i class="fas fa-xmark"></i> Close
+        </button>
+      </div>
+      <div id="voucherModalBody"></div>
+    </div>
+  </div>
+
+  <!-- 7. Interactive GST / Tax Calculator Modal -->
+  <div class="modal-overlay" id="gstCalcModal">
+    <div class="modal-container" style="max-width: 520px;">
+      <div class="modal-header">
+        <div class="modal-title"><i class="fas fa-calculator text-primary"></i> Corporate GST Calculator</div>
+        <button class="modal-close" onclick="UI.closeModal('gstCalcModal')">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label class="form-label">Initial Amount (₹)</label>
+          <input type="number" id="gstCalcAmount" class="form-input" value="50000" oninput="App.calculateGST()">
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+          <div class="form-group">
+            <label class="form-label">Tax Rate (%)</label>
+            <select id="gstCalcRate" class="form-select" onchange="App.calculateGST()">
+              <option value="5">5% (Essential)</option>
+              <option value="12">12% (Standard I)</option>
+              <option value="18" selected>18% (Services/IT)</option>
+              <option value="28">28% (Luxury/Hardware)</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Calculation Mode</label>
+            <select id="gstCalcMode" class="form-select" onchange="App.calculateGST()">
+              <option value="exclusive" selected>Exclusive (Add GST)</option>
+              <option value="inclusive">Inclusive (Extract GST)</option>
+            </select>
+          </div>
+        </div>
+
+        <div style="background: var(--bg-surface-subtle); padding: 1.25rem; border-radius: var(--radius-md); border: 1px solid var(--border-subtle); margin-top: 1rem;">
+          <div class="invoice-summary-row">
+            <span>Base Net Amount:</span>
+            <strong id="gstResBase">₹ 50,000</strong>
+          </div>
+          <div class="invoice-summary-row">
+            <span>CGST (Central Tax):</span>
+            <strong id="gstResCGST">₹ 4,500</strong>
+          </div>
+          <div class="invoice-summary-row">
+            <span>SGST (State Tax):</span>
+            <strong id="gstResSGST">₹ 4,500</strong>
+          </div>
+          <div class="invoice-summary-row total text-primary">
+            <span>Total Gross (Payable):</span>
+            <span id="gstResTotal">₹ 59,000</span>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" onclick="UI.closeModal('gstCalcModal')">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 8. Global Search Command Palette (Ctrl+K) -->
+  <div class="modal-overlay" id="globalSearchModal">
+    <div class="modal-container cmd-palette">
+      <div class="cmd-input-wrap">
+        <i class="fas fa-search"></i>
+        <input type="text" id="globalSearchInput" class="cmd-input" placeholder="Search transactions, invoices, team members... (ESC to close)" oninput="UI.executeGlobalSearch(this.value)">
+      </div>
+      <div class="cmd-results" id="globalSearchResults">
+        <!-- Rendered by UI.executeGlobalSearch -->
+      </div>
+    </div>
+  </div>
+
+  <!-- ApexLedger Core Scripts -->
+  <script src="js/data.js"></script>
+  <script src="js/store.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/charts.js"></script>
+  <script src="js/ui.js"></script>
+  <script src="js/app.js"></script>
+
+  <script>
+    // Set default dates for modals
+    document.addEventListener("DOMContentLoaded", () => {
+      const today = new Date().toISOString().split("T")[0];
+      const future = new Date(Date.now() + 15 * 86400000).toISOString().split("T")[0];
+      const incDate = document.getElementById("incDate");
+      const expDate = document.getElementById("expDate");
+      const invDueDate = document.getElementById("invDueDate");
+      if (incDate) incDate.value = today;
+      if (expDate) expDate.value = today;
+      if (invDueDate) invDueDate.value = future;
+    });
+  </script>
+</body>
+</html>
